@@ -11,7 +11,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 
 public class PortalControllerTest extends CIAMTestBase {
 
@@ -40,6 +43,6 @@ public class PortalControllerTest extends CIAMTestBase {
         assertEquals("Password updated successfully.", response.getBody());
     }
 
-
+   
 
 }

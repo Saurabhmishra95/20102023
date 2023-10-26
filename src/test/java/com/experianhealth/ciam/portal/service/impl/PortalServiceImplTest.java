@@ -4,12 +4,15 @@ import com.experianhealth.ciam.CIAMTestBase;
 import com.experianhealth.ciam.exception.CIAMPasswordException;
 import com.experianhealth.ciam.forgerock.model.Application;
 import com.experianhealth.ciam.forgerock.model.ApplicationDetails;
+import com.experianhealth.ciam.forgerock.model.OrganizationDetails;
 import com.experianhealth.ciam.forgerock.model.User;
 import com.experianhealth.ciam.forgerock.service.ForgeRockAMService;
 import com.experianhealth.ciam.forgerock.service.ManagedApplicationService;
+import com.experianhealth.ciam.forgerock.service.ManagedOrganizationService;
 import com.experianhealth.ciam.forgerock.service.ManagedUserService;
 
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
+import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.utility.ApplicationDetailsMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,11 +41,13 @@ public class PortalServiceImplTest extends CIAMTestBase {
 
     @Mock
     private ManagedApplicationService managedApplicationService;
-
+    
+    @Mock
+    private ManagedOrganizationService managedOrganizationService;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        portalService = new PortalServiceImpl(amService, managedUserService, managedApplicationService, applicationDetailsMapper);
+        portalService = new PortalServiceImpl(amService, managedUserService, managedApplicationService, applicationDetailsMapper, managedOrganizationService); 
     }
 
     @Test
@@ -148,6 +153,28 @@ public class PortalServiceImplTest extends CIAMTestBase {
         assertTrue(resultList.get(0).getApps().isEmpty());
         assertEquals("availableApps", resultList.get(1).getSection());
         assertTrue(resultList.get(1).getApps().isEmpty());
+    }
+    
+    @Test
+    void testGetAllOrganizationsSuccess() {
+        String token = "sampleToken";
+
+        OrganizationDetails orgDetails1 = new OrganizationDetails();
+        orgDetails1.set_id("1");
+        orgDetails1.setName("Org1");
+
+        OrganizationDetails orgDetails2 = new OrganizationDetails();
+        orgDetails2.set_id("2");
+        orgDetails2.setName("Org2");
+
+        List<OrganizationDetails> orgDetailsList = Arrays.asList(orgDetails1, orgDetails2);
+
+        when(managedOrganizationService.getAll(token)).thenReturn(orgDetailsList);
+        List<Organization> result = portalService.getAllOrganizations(token);
+        
+        assertEquals(2, result.size(), "Expected two organizations to be returned");
+        assertEquals("Org1", result.get(0).getName(), "Expected the name of the first organization to be 'Org1'");
+        assertEquals("Org2", result.get(1).getName(), "Expected the name of the second organization to be 'Org2'");
     }
 
 }

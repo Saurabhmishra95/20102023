@@ -7,6 +7,7 @@ import javax.json.JsonPatchBuilder;
 import com.experianhealth.ciam.EnvironmentSettings;
 import com.experianhealth.ciam.forgerock.model.*;
 import com.experianhealth.ciam.forgerock.service.ManagedApplicationService;
+import com.experianhealth.ciam.forgerock.service.ManagedOrganizationService;
 import com.experianhealth.ciam.forgerock.service.ManagedUserService;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
@@ -20,10 +21,10 @@ import com.experianhealth.ciam.forgerock.service.ForgeRockAMService;
 
 
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
+import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.entity.AppDetail;
-import com.experianhealth.ciam.forgerock.model.User;
 import com.experianhealth.ciam.portal.utility.ApplicationDetailsMapper;
-
+import com.experianhealth.ciam.portal.utility.OrganizationMapper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,17 +45,21 @@ public class PortalServiceImpl implements PortalService {
 
     @Autowired
     private ApplicationDetailsMapper applicationDetailsMapper;
+    
+    @Autowired
+    private ManagedOrganizationService managedOrganizationService;
 
     private final String clientId;
     private final String clientSecret;
     private  final PortalConfiguration configuration;
 
     @Autowired
-    public PortalServiceImpl(ForgeRockAMService amService, ManagedUserService managedUserService,ManagedApplicationService managedApplicationService,ApplicationDetailsMapper applicationDetailsMapper) {
+    public PortalServiceImpl(ForgeRockAMService amService, ManagedUserService managedUserService,ManagedApplicationService managedApplicationService,ApplicationDetailsMapper applicationDetailsMapper,ManagedOrganizationService managedOrganizationService) {
         this.amService = amService;
         this.managedUserService = managedUserService;
         this.managedApplicationService=managedApplicationService;
         this.applicationDetailsMapper=applicationDetailsMapper;
+        this.managedOrganizationService=managedOrganizationService;
         clientId = EnvironmentSettings.getPortalClientId();
         clientSecret = EnvironmentSettings.getPortalClientSecret();
         configuration = new PortalConfiguration();
@@ -147,4 +152,13 @@ public class PortalServiceImpl implements PortalService {
     private List<String> getApplicationIds(List<Application> applications) {
         return applications.stream().map(Application::get_id).collect(Collectors.toList());
     }
+    
+    @Override
+    public List<Organization> getAllOrganizations(String token) {
+        List<OrganizationDetails> organizationDetailsList = managedOrganizationService.getAll(token);
+        List<Organization> organizations = OrganizationMapper.mapToOrganizations(organizationDetailsList);
+        
+        return organizations;
+    }
+
 }

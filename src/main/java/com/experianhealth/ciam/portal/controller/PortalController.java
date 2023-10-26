@@ -1,6 +1,8 @@
 package com.experianhealth.ciam.portal.controller;
 
+
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
+import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.entity.PasswordUpdateRequest;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
@@ -21,6 +23,7 @@ public class PortalController {
     public static final String UPDATEPASSWORD_PATH = "/updatepassword";
     public static final String PORTAL_PATH = "/portal";
     public static final String APPLICATION_DETAILS_PATH = "/applicationdetails";
+	private static final String ORGANIZATIONS_PATH = "organizations";
 
     @Autowired
     private PortalService portalService;
@@ -49,4 +52,14 @@ public class PortalController {
         List<ApplicationSection> responses = portalService.getApplicationDetails(token);
         return ResponseEntity.ok(responses);
     }
+    
+    @GetMapping(ORGANIZATIONS_PATH)
+    public ResponseEntity<List<Organization>> getAllOrganizations(
+            @RequestHeader(value = "Authorization", required = false) Optional<String> bearerToken) {
+    	 String token = AuthorizationUtils.validateBearerToken(bearerToken);
+        List<Organization> organizations = portalService.getAllOrganizations(token);
+        return ResponseEntity.ok(organizations);
+    }
+
+
 }

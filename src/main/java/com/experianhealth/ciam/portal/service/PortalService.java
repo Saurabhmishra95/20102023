@@ -3,6 +3,7 @@ package com.experianhealth.ciam.portal.service;
 import java.util.List;
 
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
+import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 
 public interface PortalService {
@@ -12,4 +13,6 @@ public interface PortalService {
     PortalConfiguration getConfiguration();
 
     List<ApplicationSection> getApplicationDetails(String token);
+    
+    List<Organization> getAllOrganizations(String token);
 }
