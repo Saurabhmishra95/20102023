@@ -59,7 +59,6 @@ public class PortalServiceImpl implements PortalService {
         this.managedUserService = managedUserService;
         this.managedApplicationService=managedApplicationService;
         this.applicationDetailsMapper=applicationDetailsMapper;
-        this.managedOrganizationService=managedOrganizationService;
         clientId = EnvironmentSettings.getPortalClientId();
         clientSecret = EnvironmentSettings.getPortalClientSecret();
         configuration = new PortalConfiguration();
@@ -152,13 +151,41 @@ public class PortalServiceImpl implements PortalService {
     private List<String> getApplicationIds(List<Application> applications) {
         return applications.stream().map(Application::get_id).collect(Collectors.toList());
     }
-    
+   
     @Override
-    public List<Organization> getAllOrganizations(String token) {
-        List<OrganizationDetails> organizationDetailsList = managedOrganizationService.getAll(token);
-        List<Organization> organizations = OrganizationMapper.mapToOrganizations(organizationDetailsList);
-        
-        return organizations;
+    public List<Organization> getOrganizations(String token, String searchFilter, String returnAttributes) {
+        List<OrganizationDetails> organizationDetailsList;
+        if (returnAttributes != null && searchFilter == null) {
+            organizationDetailsList = managedOrganizationService.getAllWithAttributes(token, returnAttributes);
+        }
+        else if (searchFilter == null && returnAttributes == null) {
+            organizationDetailsList = managedOrganizationService.getAll(token);
+        }
+        else {
+            organizationDetailsList = executeSearch(token, searchFilter, returnAttributes);
+        }
+        return OrganizationMapper.mapToOrganizations(organizationDetailsList);
     }
+
+    /**
+     * Helper method to execute a search based on searchFilter and returnAttributes.
+     */
+    List<OrganizationDetails> executeSearch(String token, String searchFilter, String returnAttributes) {
+        FRQuery.Builder queryBuilder = FRQuery.Builder.create();
+        if (searchFilter != null) {
+            FRQueryFilter.Expression searchExpression = FRQueryFilter.or(
+                    FRQueryFilter.co("name", searchFilter),
+                    FRQueryFilter.co("description", searchFilter)
+            );
+            queryBuilder.withFilterExpression(searchExpression);
+        }
+        if (returnAttributes != null) {
+            String[] fields = returnAttributes.split(" ");
+            queryBuilder.withReturnFields(fields);
+        }
+        FRQuery query = queryBuilder.build();
+        return managedOrganizationService.search(token, query);
+    }
+
 
 }

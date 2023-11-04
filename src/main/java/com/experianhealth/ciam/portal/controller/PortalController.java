@@ -1,12 +1,15 @@
 package com.experianhealth.ciam.portal.controller;
 
 
+
+import com.experianhealth.ciam.forgerock.service.ManagedOrganizationService;
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
 import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.entity.PasswordUpdateRequest;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
 import com.experianhealth.ciam.scimapi.utils.AuthorizationUtils;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +30,7 @@ public class PortalController {
 
     @Autowired
     private PortalService portalService;
-
+    
     @GetMapping(CONFIGURATION_PATH)
     public ResponseEntity<PortalConfiguration> getConfiguration() {
         return ResponseEntity.ok(portalService.getConfiguration());
@@ -54,12 +57,16 @@ public class PortalController {
     }
     
     @GetMapping(ORGANIZATIONS_PATH)
-    public ResponseEntity<List<Organization>> getAllOrganizations(
-            @RequestHeader(value = "Authorization", required = false) Optional<String> bearerToken) {
-    	 String token = AuthorizationUtils.validateBearerToken(bearerToken);
-        List<Organization> organizations = portalService.getAllOrganizations(token);
+    public ResponseEntity<List<Organization>> getOrganizations(
+            @RequestHeader(value = "Authorization", required = false) String bearerToken,
+            @RequestParam(required = false) String searchFilter,
+            @RequestParam(required = false) String returnAttributes) {
+        String token = AuthorizationUtils.validateBearerToken(Optional.ofNullable(bearerToken));
+        List<Organization> organizations = portalService.getOrganizations(token, searchFilter, returnAttributes);
         return ResponseEntity.ok(organizations);
     }
+
+
 
 
 }

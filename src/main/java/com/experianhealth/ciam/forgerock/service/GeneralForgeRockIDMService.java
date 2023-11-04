@@ -16,8 +16,11 @@ public interface GeneralForgeRockIDMService<T> {
     Optional<T> getById(String token, String id);
 
     Optional<T> getById(String token, String id, FRQuery query);
-
+    
     List<T> getAll(String token);
+    
+    List<T> getAllWithAttributes(String token, String returnAttributes);
+    
     T create(String token, T entity);
 
     List<T> search(String token, FRQuery query);
