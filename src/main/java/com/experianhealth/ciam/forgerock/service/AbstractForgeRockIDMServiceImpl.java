@@ -72,16 +72,7 @@ public abstract class AbstractForgeRockIDMServiceImpl<T> implements GeneralForge
         return search(token, FRQuery.queryAll());
     }
     
-    @Override
-    public List<T> getAllWithAttributes(String token, String returnAttributes) {
-        FRQuery.Builder queryBuilder = FRQuery.Builder.create().withQueryAll();
-        if (returnAttributes != null && !returnAttributes.trim().isEmpty()) {
-            String[] fields = returnAttributes.split(" ");
-            queryBuilder.withReturnFields(fields);
-        }        
-        FRQuery query = queryBuilder.build();      
-        return jsonMapper.mapJsonToList(HTTPRequestProcessor.sendGetRequest(token, query.buildURI(baseUrl)));
-    }
+ 
 
     @Override
     public T create(String token, T entity) {

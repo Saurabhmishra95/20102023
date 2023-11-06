@@ -7,6 +7,8 @@ import com.experianhealth.ciam.forgerock.service.*;
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
 import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.utility.ApplicationDetailsMapper;
+import com.experianhealth.ciam.portal.utility.OrganizationMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -141,37 +143,24 @@ public class PortalServiceImplTest extends CIAMTestBase {
     }
 
     @Test
-    void testGetOrganizations_AllAttributes() {
+    void testGetOrganizations() {
         String token = "sampleToken";
-        String returnAttributes = "name description";
-        when(managedOrganizationService.getAllWithAttributes(token, returnAttributes))
-                .thenReturn(Collections.emptyList());
-        List<Organization> organizations = portalService.getOrganizations(token, null, returnAttributes);
-        assertEquals(0, organizations.size());
-        verify(managedOrganizationService).getAllWithAttributes(token, returnAttributes);
+        String searchFilter = "searchQuery";
+        String returnAttributes = "name,description";
+        OrganizationDetails orgDetails1 = new OrganizationDetails();
+        orgDetails1.setName("Org1");
+        OrganizationDetails orgDetails2 = new OrganizationDetails();
+        orgDetails2.setName("Org2");
+        List<OrganizationDetails> organizationDetailsList = Arrays.asList(orgDetails1, orgDetails2);
+        when(managedOrganizationService.search(eq(token), any(FRQuery.class))).thenReturn(organizationDetailsList);
+       List<Organization> organizations = portalService.getOrganizations(token, searchFilter, returnAttributes);     
+        assertNotNull(organizations);
+        assertEquals(2, organizations.size());
+        assertEquals("Org1", organizations.get(0).getName());
+        assertEquals("Org2", organizations.get(1).getName());        
+        verify(managedOrganizationService).search(eq(token), any(FRQuery.class));
     }
 
-    @Test
-    void testGetOrganizations_NoFilterNoAttributes() {
-        String token = "sampleToken";
-        when(managedOrganizationService.getAll(token))
-                .thenReturn(Collections.emptyList());
-        List<Organization> organizations = portalService.getOrganizations(token, null, null);
-        assertEquals(0, organizations.size());
-        verify(managedOrganizationService).getAll(token);
-    }
-
-    @Test
-    void testExecuteSearch() {
-        String token = "sampleToken";
-        String searchFilter = "sampleFilter";
-        String returnAttributes = "name description";
-        when(managedOrganizationService.search(eq(token), any()))
-                .thenReturn(Collections.emptyList());
-        List<OrganizationDetails> organizationDetails = portalService.executeSearch(token, searchFilter, returnAttributes);
-        assertEquals(0, organizationDetails.size());
-        verify(managedOrganizationService).search(eq(token), any());
-    }
 
 
 }

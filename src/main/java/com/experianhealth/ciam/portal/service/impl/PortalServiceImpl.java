@@ -11,6 +11,8 @@ import com.experianhealth.ciam.forgerock.service.ManagedOrganizationService;
 import com.experianhealth.ciam.forgerock.service.ManagedUserService;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -154,38 +156,22 @@ public class PortalServiceImpl implements PortalService {
    
     @Override
     public List<Organization> getOrganizations(String token, String searchFilter, String returnAttributes) {
-        List<OrganizationDetails> organizationDetailsList;
-        if (returnAttributes != null && searchFilter == null) {
-            organizationDetailsList = managedOrganizationService.getAllWithAttributes(token, returnAttributes);
-        }
-        else if (searchFilter == null && returnAttributes == null) {
-            organizationDetailsList = managedOrganizationService.getAll(token);
-        }
-        else {
-            organizationDetailsList = executeSearch(token, searchFilter, returnAttributes);
-        }
-        return OrganizationMapper.mapToOrganizations(organizationDetailsList);
-    }
-
-    /**
-     * Helper method to execute a search based on searchFilter and returnAttributes.
-     */
-    List<OrganizationDetails> executeSearch(String token, String searchFilter, String returnAttributes) {
         FRQuery.Builder queryBuilder = FRQuery.Builder.create();
-        if (searchFilter != null) {
+        if (StringUtils.isNotEmpty(searchFilter)) {
             FRQueryFilter.Expression searchExpression = FRQueryFilter.or(
                     FRQueryFilter.co("name", searchFilter),
                     FRQueryFilter.co("description", searchFilter)
             );
             queryBuilder.withFilterExpression(searchExpression);
+        } else {
+            queryBuilder.withQueryAll();
         }
-        if (returnAttributes != null) {
-            String[] fields = returnAttributes.split(" ");
+        if (StringUtils.isNotEmpty(returnAttributes)) {
+            String[] fields = returnAttributes.split("[ ,]+");
             queryBuilder.withReturnFields(fields);
         }
         FRQuery query = queryBuilder.build();
-        return managedOrganizationService.search(token, query);
+        List<OrganizationDetails> organizationDetailsList = managedOrganizationService.search(token, query);
+        return OrganizationMapper.mapToOrganizations(organizationDetailsList);
     }
-
-
 }

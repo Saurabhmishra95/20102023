@@ -19,8 +19,6 @@ public interface GeneralForgeRockIDMService<T> {
     
     List<T> getAll(String token);
     
-    List<T> getAllWithAttributes(String token, String returnAttributes);
-    
     T create(String token, T entity);
 
     List<T> search(String token, FRQuery query);
