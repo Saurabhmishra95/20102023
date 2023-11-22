@@ -58,7 +58,7 @@ public class ScimUser2FRUser {
         if (scimUser.getTimezone() != null) {
             frUser.setPreferredTimezone(scimUser.getTimezone());
         }
-        mapAddress(scimUser.getAddress(), frUser);
+        mapAddress(scimUser.getAddresses(), frUser);
 
         frUser.setAccountStatus("ACTIVE");
 
@@ -140,7 +140,33 @@ public class ScimUser2FRUser {
         return phoneNumbers.stream().filter(phoneNumber -> StringUtils.isNotEmpty(phoneNumber.getValue())).toList();
     }
 
+    private static void mapAddress(List<Address> scimAddresses, User frUser) {
+        Optional<Address> bestAddress = determineBestAddress(scimAddresses);
+        if (bestAddress.isPresent()) {
+            Address scimAddress = bestAddress.get();
+            frUser.setStateProvince(scimAddress.getRegion());
+            frUser.setPostalCode(scimAddress.getPostalCode());
+            frUser.setCountry(scimAddress.getCountry());
+        }
+    }
+    
+    static Optional<Address> determineBestAddress(List<Address> addresses) {
+        if (addresses == null || addresses.isEmpty()) {
+            return Optional.empty();
+        }
 
+        // First, try to find an address with type 'work'
+        Optional<Address> workAddress = addresses.stream()
+                .filter(address -> "work".equalsIgnoreCase(address.getType()))
+                .findFirst();
+
+        if (workAddress.isPresent()) {
+            return workAddress;
+        }
+
+        // If no 'work' address, return the first address in the list
+        return Optional.of(addresses.get(0));
+    }
 
 
 }

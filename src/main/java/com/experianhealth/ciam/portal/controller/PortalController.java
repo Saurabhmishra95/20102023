@@ -2,15 +2,20 @@ package com.experianhealth.ciam.portal.controller;
 
 
 
+import com.experianhealth.ciam.exception.CIAMNotFoundException;
+import com.experianhealth.ciam.forgerock.model.FRQuery;
+import com.experianhealth.ciam.forgerock.model.FRQueryFilter;
+import com.experianhealth.ciam.forgerock.model.OrganizationDetails;
 import com.experianhealth.ciam.forgerock.service.ManagedOrganizationService;
 import com.experianhealth.ciam.portal.entity.ApplicationSection;
 import com.experianhealth.ciam.portal.entity.Organization;
 import com.experianhealth.ciam.portal.entity.PasswordUpdateRequest;
 import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
+import com.experianhealth.ciam.portal.utility.OrganizationMapper;
 import com.experianhealth.ciam.scimapi.utils.AuthorizationUtils;
 
-
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +32,9 @@ public class PortalController {
     public static final String PORTAL_PATH = "/portal";
     public static final String APPLICATION_DETAILS_PATH = "/applicationdetails";
 	private static final String ORGANIZATIONS_PATH = "organizations";
+	
+	  @Autowired
+	    private ManagedOrganizationService managedOrganizationService;
 
     @Autowired
     private PortalService portalService;
@@ -66,7 +74,17 @@ public class PortalController {
         return ResponseEntity.ok(organizations);
     }
 
-
-
+    @GetMapping(ORGANIZATIONS_PATH + "/{id}")
+    public ResponseEntity<Organization> getOrganizationById(
+            @RequestHeader(value = "Authorization", required = false) String bearerToken,
+            @PathVariable String id,
+            @RequestParam(required = false) String attributes) {
+        String token = AuthorizationUtils.validateBearerToken(Optional.ofNullable(bearerToken));
+        Optional<Organization> organization = portalService.getOrganizationDetailsById(token, id, attributes);
+        if (!organization.isPresent()) {
+            throw new CIAMNotFoundException(id, "Organization not found");
+        }
+        return ResponseEntity.ok(organization.get());
+    }
 
 }

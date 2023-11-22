@@ -15,8 +15,8 @@ public class ScimUser {
     private String userName;
     private String displayName;
     private Name name;
-    private Address address;
     private List<PhoneNumber> phoneNumbers;
+    private List<Address> addresses;
     private boolean active;
     private String locale;
     private String timezone;
@@ -29,14 +29,14 @@ public class ScimUser {
     }
 
     // Parameterized constructor
-    public ScimUser(String id, String userName,String displayName, Name name, Address address, String email,
+    public ScimUser(String id, String userName,String displayName, Name name, Address address, String email,List<Address> addresses,
                     List<PhoneNumber> phoneNumbers, boolean active, String locale, String timezone, List<Email> emails, List<ScimGroupReference> groups,Meta meta) {
         this.id = id;
         this.userName = userName;
         this.displayName=displayName;
         this.name = name;
-        this.address = address;
         this.phoneNumbers = phoneNumbers;
+        this.addresses=addresses;
         this.active = active;
         this.locale = locale;
         this.timezone = timezone;
@@ -89,19 +89,6 @@ public class ScimUser {
         this.name = name;
     }
 
-    /**
-     * Get the address of the SCIM user.
-     */
-    public Address getAddress() {
-        return address;
-    }
-
-    /**
-     * Set the address of the SCIM user.
-     */
-    public void setAddress(Address address) {
-        this.address = address;
-    }
 
 
     /**
@@ -208,4 +195,12 @@ public class ScimUser {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
+
+	public List<Address> getAddresses() {
+		return addresses;
+	}
+
+	public void setAddresses(List<Address> addresses) {
+		this.addresses = addresses;
+	}
 }

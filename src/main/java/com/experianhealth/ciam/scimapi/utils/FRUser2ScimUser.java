@@ -23,7 +23,7 @@ public class FRUser2ScimUser {
             if (scimUser.getId() != null || scimUser.getUserName() != null || scimUser.getDisplayName() != null || scimUser.getName() != null ||
                     scimUser.getEmails() != null ||
                     scimUser.getPhoneNumbers() != null ||
-                    scimUser.getAddress() != null ||
+                    scimUser.getAddresses() != null ||
                     scimUser.getGroups() != null ||
                     scimUser.getMeta() != null
             )
@@ -44,7 +44,7 @@ public class FRUser2ScimUser {
         scimUser.setEmails(createEmailsFromFRUser(user));
         scimUser.setTimezone(user.getPreferredTimezone());
         scimUser.setPhoneNumbers(createPhoneNumberFromFRUser(user));
-        scimUser.setAddress(createAddressFromFRUser(user));
+        scimUser.setAddresses(createAddressFromFRUser(user));
         scimUser.setGroups(createRoles(user,scimBaseUri));
         scimUser.setMeta(createMeta(user,scimBaseUri));
         return scimUser;
@@ -99,7 +99,8 @@ public class FRUser2ScimUser {
     /**
      * Creates an Address object based on the User object's attributes.
      */
-    static Address createAddressFromFRUser(User user) {
+    static List<Address> createAddressFromFRUser(User user) {
+        List<Address> addresses = new ArrayList<>();
         if (user.getPostalAddress() != null || user.getStateProvince() != null ||
                 user.getPostalCode() != null || user.getCountry() != null) {
             Address address = new Address();
@@ -109,10 +110,12 @@ public class FRUser2ScimUser {
             address.setPostalCode(user.getPostalCode());
             address.setCountry(user.getCountry());
             address.setPrimary(true);
-            return address;
+            address.setType("work");
+            addresses.add(address);
         }
-        return null;
+        return addresses;
     }
+
 
     /**
      * Formats the address components into a single formatted address string.

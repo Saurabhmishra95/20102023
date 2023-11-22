@@ -69,13 +69,13 @@ public class SchemaServiceImpl implements SchemaService {
                 createAttribute("userName", "string", "Username of the User."),
                 createComplexAttribute("name", "The components of the user's real name. Providers MAY return just the full name as a single string in the formatted sub-attribute, or they MAY return just the individual component attributes using the other sub-attributes, or they MAY return both. If both variants are returned, they SHOULD be describing the same name, with the formatted name indicating how the component attributes should be combined.", createNameSubAttributes()),
                 createAttribute("displayName", "string", "The name of the User, suitable for display to end-users. The name SHOULD be the full name of the User being described if known."),
-                createComplexAttribute("address", "A physical mailing address for the User Canonical type values of 'work', 'home', and 'other'. This attribute is a complex type with the following sub-attributes.", createAddressSubAttributes()),
-                createComplexAttribute("emails", "The email addresses of the User.", createEmailSubAttributes()),
-                createComplexAttribute("phoneNumbers", "The phone numbers of the User.",createphoneNumbersAttributes()),
+                createComplexAttributeWithMultiValue("addresses", "A physical mailing address for the User...", true, createAddressSubAttributes()),
+                createComplexAttributeWithMultiValue("emails", "The email addresses of the User.", true, createEmailSubAttributes()),
+                createComplexAttributeWithMultiValue("phoneNumbers", "The phone numbers of the User.", true, createphoneNumbersAttributes()),
                 createAttribute("active", "boolean", "Indicates whether the User is active or not."),
                 createAttribute("locale", "string", "The locale of the User."),
                 createAttribute("timezone", "string", "The timezone of the User."),
-                createComplexAttribute("groups", "The groups to which the User belongs.", createGroupsSubAttributes())
+                createComplexAttributeWithMultiValue("groups", "The groups to which the User belongs.", true, createGroupsSubAttributes())
         );
         Meta meta = createMeta("Schema", "urn:ietf:params:scim:schemas:core:2.0:User");
 
@@ -129,7 +129,12 @@ public class SchemaServiceImpl implements SchemaService {
 
         );
     }
-
+    private Attribute createComplexAttributeWithMultiValue(String name, String description, boolean multiValued, List<SubAttribute> subAttributes) {
+        Attribute attribute = createAttribute(name, "complex", description);
+        attribute.setSubAttributes(subAttributes);
+        attribute.setMultiValued(multiValued);
+        return attribute;
+    }
     // Method to create the sub-attributes for the 'address' attribute
     private List<SubAttribute> createAddressSubAttributes() {
         return Arrays.asList(

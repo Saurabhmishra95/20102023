@@ -4,15 +4,8 @@ info:
   description: A System for Cross-Domain Identity Management API to connect with ForgeRock IDM
   version: 1.0.0
 servers:
-  - url: http://localhost:8082
+  - url: http://localhost:8089
     description: Development server
-  - url: http://localhost:8080
-    description: Production server
-security:
-  - oAuth2AuthCode:
-      - read
-      - write
-      - admin
 tags:
   - name: Users
     description: Users-related operations
@@ -21,12 +14,14 @@ tags:
   - name: Schemas
     description: Schema-related operations
 paths:
-  /Users:
+  /scim/v2/Users:
     get:
       tags:
         - Users
       summary: Retrieve all users
       operationId: getUsers
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -43,12 +38,16 @@ paths:
                 $ref: '#/components/schemas/UsersListResponse'
         '401':
           description: Invalid Token
+      # Curl command for testing:
+      # curl -X GET "http://localhost:8089/scim/v2/Users" -H "Authorization: Bearer YOUR_TOKEN"
 
     post:
       tags:
         - Users
       summary: Create a new user
       operationId: createUser
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -72,12 +71,17 @@ paths:
           description: Unauthorized. Bearer token is missing or invalid.
         '409':
           description: Conflict. The resource could not be created.
-  /Users/{userId}:
+      # Curl command for testing:
+      # curl -X POST "http://localhost:8089/scim/v2/Users" -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}'
+
+  /scim/v2/Users/{userId}:
     get:
       tags:
         - Users
       summary: Retrieve a user by ID
       operationId: getUserById
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -102,12 +106,17 @@ paths:
           description: Invalid Token
         '404':
           description: The requested resource could not be found
-  /Groups:
+      # Curl command for testing:
+      # curl -X GET "http://localhost:8089/scim/v2/Users/{userId}" -H "Authorization: Bearer YOUR_TOKEN"
+
+  /scim/v2/Groups:
     get:
       tags:
         - Groups
       summary: Retrieves all groups.
       description: This operation retrieves all groups.
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -126,18 +135,23 @@ paths:
           description: Unauthorized. Bearer token is missing or invalid.
         '500':
           description: Internal Server Error
+      # Curl command for testing:
+      # curl -X GET "http://localhost:8089/scim/v2/Groups" -H "Authorization: Bearer YOUR_TOKEN"
+
     post:
       tags:
         - Groups
       summary: Create a new group
       operationId: createGroup
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
           schema:
             type: string
-          required: false
-          description: Authorization header. Bearer token is expected (optional for now).
+          required: true
+          description: Authorization header. Bearer token is expected.
       requestBody:
         content:
           application/json:
@@ -154,12 +168,17 @@ paths:
           description: Unauthorized. Bearer token is missing or invalid.
         '409':
           description: Conflict. The resource could not be created.
-  /Groups/{id}:
+      # Curl command for testing:
+      # curl -X POST "http://localhost:8089/scim/v2/Groups" -H "Authorization: Bearer YOUR_TOKEN" -H "Content-Type: application/json" -d '{"key1":"value1", "key2":"value2"}'
+
+  /scim/v2/Groups/{id}:
     get:
       tags:
         - Groups
       summary: Retrieve a group by ID
       operationId: getGroupById
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -184,18 +203,23 @@ paths:
           description: Invalid Token
         '404':
           description: The requested resource could not be found
+      # Curl command for testing:
+      # curl -X GET "http://localhost:8089/scim/v2/Groups/{id}" -H "Authorization: Bearer YOUR_TOKEN"
+
     delete:
       tags:
         - Groups
       summary: Delete a group by ID
       operationId: deleteGroup
+      security:
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
           schema:
             type: string
-          required: false
-          description: Authorization header. Bearer token is expected (optional for now).
+          required: true
+          description: Authorization header. Bearer token is expected.
         - in: path
           name: id
           schema:
@@ -209,7 +233,10 @@ paths:
           description: Unauthorized. Bearer token is missing or invalid.
         '404':
           description: The requested resource could not be found.
-  /Schemas:
+      # Curl command for testing:
+      # curl -X DELETE "http://localhost:8089/scim/v2/Groups/{id}" -H "Authorization: Bearer YOUR_TOKEN"
+
+  /scim/v2/Schemas:
     get:
       tags:
         - Schemas
@@ -224,6 +251,9 @@ paths:
                 $ref: '#/components/schemas/SchemasListResponse'
         '401':
           description: Invalid Token
+      # Curl command for testing:
+      # curl -X GET "http://localhost:8089/scim/v2/Schemas" -H "Authorization: Bearer YOUR_TOKEN"
+
 components:
   schemas:
     UsersListResponse:
@@ -396,14 +426,3 @@ components:
         description:
           type: string
           description: Description of the sub-attribute
-  securitySchemes:
-    oAuth2AuthCode:
-      type: oauth2
-      flows:
-        authorizationCode:
-          authorizationUrl: https://example.openam.com/oauth/authorize
-          tokenUrl: https://example.openam.com/api/oauth.access
-          scopes:
-            read: Read only access
-            write: Read Write access
-            admin: Admin access

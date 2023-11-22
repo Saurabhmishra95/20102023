@@ -1,5 +1,6 @@
 package com.experianhealth.ciam.forgerock.model;
 
+import com.experianhealth.ciam.scimapi.entity.Address;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -217,5 +218,7 @@ public class User {
                 .add("preferredTimezone='" + preferredTimezone + "'")  // Added this line
                 .toString();
     }
+
+	
 
 }

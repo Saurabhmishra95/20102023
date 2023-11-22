@@ -9,7 +9,7 @@ public class Attribute {
     private String name;
     private String type;
     private String description;
-
+    private boolean multiValued;
     private List<SubAttribute> subAttributes;
 
     // Getters and Setters
@@ -52,6 +52,14 @@ public class Attribute {
     public void setId(String string) {
         // TODO Auto-generated method stub
 
+    }
+    
+    public boolean isMultiValued() {
+        return multiValued;
+    }
+
+    public void setMultiValued(boolean multiValued) {
+        this.multiValued = multiValued;
     }
 
 }

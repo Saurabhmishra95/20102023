@@ -46,7 +46,7 @@ public class FRUser2ScimUserTest extends CIAMTestBase {
         assertEquals("User", scimUser.getName().getFamilyName());
         assertEquals("testUser@example.com", scimUser.getEmails().get(0).getValue());
         assertEquals("1234567890", scimUser.getPhoneNumbers().get(0).getValue());
-        assertEquals("123 Main St, State, 12345, Country", scimUser.getAddress().getFormatted());
+        assertEquals("123 Main St, State, 12345, Country", scimUser.getAddresses().get(0).getFormatted());
     }
 
     @Test

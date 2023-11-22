@@ -136,17 +136,21 @@ public class UserPatchBuilder {
     }
 
     private void handleEntireAddressOperation(String op, Object value) {
-        if (value instanceof Map) {
-            Address address = mapper.convertValue(value, Address.class);
-            applyAttributeOperation(op, "/postalAddress", address.getLocality());
-            applyAttributeOperation(op, "/stateProvince", address.getRegion());
-            applyAttributeOperation(op, "/postalCode", address.getPostalCode());
-            applyAttributeOperation(op, "/country", address.getCountry());
-            applyAttributeOperation(op, "/primary", String.valueOf(address.isPrimary()));
+        if (value instanceof List) {
+            List<Address> addresses = mapper.convertValue(value, new TypeReference<List<Address>>() {});
+            for (Address address : addresses) {
+                applyAttributeOperation(op, "/postalAddress", address.getLocality());
+                applyAttributeOperation(op, "/stateProvince", address.getRegion());
+                applyAttributeOperation(op, "/postalCode", address.getPostalCode());
+                applyAttributeOperation(op, "/country", address.getCountry());
+                applyAttributeOperation(op, "/primary", String.valueOf(address.isPrimary()));
+            }
         } else {
-            throw new CIAMInvalidRequestException("The value for 'addresses' is not of type Address");
+            throw new CIAMInvalidRequestException("The value for 'addresses' is not of type List<Address>");
         }
     }
+
+    
 
     private void handleAddressSubAttributeOperation(String op, String subAttribute, Object value) {
         switch (subAttribute) {

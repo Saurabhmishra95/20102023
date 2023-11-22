@@ -161,6 +161,47 @@ public class PortalServiceImplTest extends CIAMTestBase {
         verify(managedOrganizationService).search(eq(token), any(FRQuery.class));
     }
 
+    @Test
+    void testGetOrganizationDetailsByIdFound() {
+        String token = "sampleToken";
+        String orgId = "orgId123";
+        String attributes = "name,description";
+
+        OrganizationDetails orgDetails = new OrganizationDetails(); 
+        orgDetails.setName("Test Organization");
+        orgDetails.setDescription("A description for Test Organization");
+
+        when(managedOrganizationService.getById(eq(token), eq(orgId), any(FRQuery.class)))
+            .thenReturn(Optional.of(orgDetails)); 
+
+        Optional<Organization> actualOrg = portalService.getOrganizationDetailsById(token, orgId, attributes);
+
+        assertTrue(actualOrg.isPresent(), "Organization should be present");
+        assertEquals(orgDetails.getName(), actualOrg.get().getName(), "Names should match");
+        assertEquals(orgDetails.getDescription(), actualOrg.get().getDescription(), "Descriptions should match");
+
+        verify(managedOrganizationService).getById(eq(token), eq(orgId), any(FRQuery.class));
+    }
+
+
+    @Test
+    void testGetOrganizationDetailsByIdNotFound() {
+        String token = "sampleToken";
+        String orgId = "orgId123";
+        String attributes = "name,description";
+
+        when(managedOrganizationService.getById(eq(token), eq(orgId), any(FRQuery.class)))
+            .thenReturn(Optional.empty());
+
+        Optional<Organization> actualOrg = portalService.getOrganizationDetailsById(token, orgId, attributes);
+
+        assertFalse(actualOrg.isPresent(), "Organization should not be present");
+
+        verify(managedOrganizationService).getById(eq(token), eq(orgId), any(FRQuery.class));
+    }
+
+
+    
 
 
 }

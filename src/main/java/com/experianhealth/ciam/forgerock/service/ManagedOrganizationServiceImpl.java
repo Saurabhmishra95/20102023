@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.experianhealth.ciam.forgerock.model.OrganizationDetails;
 
+
 @Service
 public class ManagedOrganizationServiceImpl extends AbstractForgeRockIDMServiceImpl<OrganizationDetails> implements ManagedOrganizationService {
     
@@ -17,5 +18,7 @@ public class ManagedOrganizationServiceImpl extends AbstractForgeRockIDMServiceI
     String getBasePath() {
         return ORGANIZATIONS_PATH;
     }
+
+
 
 }

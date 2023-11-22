@@ -13,9 +13,12 @@ import com.experianhealth.ciam.portal.entity.PortalConfiguration;
 import com.experianhealth.ciam.portal.service.PortalService;
 
 import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.experianhealth.ciam.exception.CIAMNotFoundException;
 import com.experianhealth.ciam.exception.CIAMPasswordException;
 import com.experianhealth.ciam.forgerock.service.ForgeRockAMService;
 
@@ -174,4 +177,21 @@ public class PortalServiceImpl implements PortalService {
         List<OrganizationDetails> organizationDetailsList = managedOrganizationService.search(token, query);
         return OrganizationMapper.mapToOrganizations(organizationDetailsList);
     }
+   
+    @Override
+    public Optional<Organization> getOrganizationDetailsById(String token, String id, String attributes) {
+        FRQuery.Builder queryBuilder = FRQuery.Builder.create();
+
+        if (StringUtils.isNotBlank(attributes)) {
+            String[] attributeFields = attributes.split("[ ,]+");
+            queryBuilder.withReturnFields(attributeFields);
+        }
+
+        FRQuery query = queryBuilder.build();
+        return managedOrganizationService.getById(token, id, query)
+                .map(OrganizationMapper::mapToOrganization);
+    }
+
+
+
 }
